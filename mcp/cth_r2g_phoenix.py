@@ -18,10 +18,10 @@ from autobots_base.mcp.servers.base_server import (
     Context,  # Use the base Context instead
 )
 
-mcp_phoenix_run_agent = AutobotsMCPStdioServer(name="apr_phoenix_run_agent")
+mcp_phoenix_run_agent = AutobotsMCPStdioServer(name="cth_r2g_phoenix_tool")
 
 @mcp_phoenix_run_agent.tool()
-def generate_eouMGR_command(block_name: str, start_task: str, end_task: str, flow: str) -> str:
+def generate_eouMGR_command(block_name: str, start_task: str, end_task: str) -> str:
     """`
     Generates the command line to run eouMGR.
     **MUST ASK THE USER FOR THE REQUIRED INPUTS BEFORE CALLING THIS TOOL**
@@ -29,13 +29,11 @@ def generate_eouMGR_command(block_name: str, start_task: str, end_task: str, flo
         block_name (str): The block name for the eouMGR command.
         start_task (str): The starting task for the flow.
         end_task (str): The ending task for the flow.
-        flow (str): The flow to run ('phoenix' or 'apr_fc').
     
     Returns:
         str: Command line string to execute eouMGR.
     """
-    if flow not in ['phoenix', 'apr_fc']:
-        raise ValueError("flow must be 'phoenix' or 'apr_fc'.")
+    flow:str = "phoenix"
 
     command = (
         f"eouMGR --block {block_name} --flow {flow} --startTask {start_task} "
@@ -63,7 +61,7 @@ def phoenix_setup_helper(ref_ward: str, block_name: str, technology: str,
         str: Execution result including stdout and stderr
     """
     
-    script_path = "./utils/fc_setup_auto_main.py"
+    script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "utils", "fc_setup_auto_main.py")
     
     command = f"python3 {script_path}"
     command += f" --destination_dir {destination_dir}"
@@ -115,7 +113,7 @@ def generate_and_compare_summaries(
     Returns:
         str: Execution logs for the scripts.
     """
-    script_dir = "./utils"
+    script_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "utils")
     
     # APR_FC summary command
     apr_fc_summary_log = os.path.join(output_dir, f"{apr_fc_block_name}_apr_fc_summary.log")
