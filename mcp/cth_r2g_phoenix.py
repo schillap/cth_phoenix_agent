@@ -37,7 +37,7 @@ def generate_eouMGR_command(block_name: str, start_task: str, end_task: str) -> 
 
     command = (
         f"eouMGR --block {block_name} --flow {flow} --startTask {start_task} "
-        f"--endTask {end_task} --feeder {flow}_{block_name} --gui --reset --waive_on_error &"
+        f"--endTask {end_task} --feeder {flow}_{block_name} --gui --reset &"
     )
     
     return command
@@ -159,6 +159,50 @@ def generate_and_compare_summaries(
             return "\n".join(execution_log)
             
     return "\n".join(execution_log)
+
+
+@mcp_phoenix_run_agent.tool()
+def check_vars_tcl_phoenix_intent(destination_dir: str, block_name: str,
+                                   technology: str, intent: str = "") -> str:
+    """
+    Check vars.tcl for 'set ivar(phoenix_int)' after Phoenix setup.
+    If the variable exists, returns its current value.
+    If it does not exist and intent is provided ('power' or 'timing'), appends it.
+    If it does not exist and no intent is provided, asks the user to specify.
+
+    **MUST BE CALLED AFTER PHOENIX SETUP IS COMPLETE**
+
+    Parameters:
+        destination_dir (str): The destination directory used during setup.
+        block_name (str): Block name (e.g., par_cbpma, dhm).
+        technology (str): Technology node (e.g., 1278.6).
+        intent (str): Optional. The intent to set — 'power' or 'timing'.
+                       Leave empty to just check.
+
+    Returns:
+        str: Status message describing what was found or done.
+    """
+    utils_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "utils")
+    sys.path.insert(0, utils_dir)
+    from utils import check_phoenix_intent
+
+    vars_tcl_path = os.path.join(
+        destination_dir, "runs", block_name, technology, "apr_fc", "scripts", "vars.tcl"
+    )
+
+    intent_arg = intent.strip() if intent else None
+    result = check_phoenix_intent(vars_tcl_path, intent=intent_arg)
+
+    if result['found']:
+        return f"✓ phoenix_int is already set in vars.tcl: {result['value']}"
+    elif result['needs_input']:
+        return (
+            "⚠ 'set ivar(phoenix_int)' was NOT found in vars.tcl.\n"
+            "Please ask the user: What intent would you like to set — 'power' or 'timing'?\n"
+            "Then call this tool again with the intent parameter."
+        )
+    else:
+        return f"✓ {result['action']}"
 
 
 if __name__ == "__main__":

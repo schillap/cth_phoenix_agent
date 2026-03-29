@@ -109,6 +109,79 @@ def create_directory_structure(base_path, structure, log_file=None):
             return False
     return True
 
+
+def check_phoenix_intent(vars_tcl_path, intent=None, log_file=None):
+    """
+    Check vars.tcl for 'set ivar(phoenix_int)' and return its value,
+    or add it with the specified intent if not present.
+
+    Args:
+        vars_tcl_path: Full path to the vars.tcl file
+        intent: If the variable is missing, set this value ('power' or 'timing').
+                If None and the variable is missing, returns a message asking the user.
+        log_file: Optional log file path
+
+    Returns:
+        dict with keys:
+            'found' (bool): Whether the variable was already present
+            'value' (str|None): The current value if found
+            'action' (str): Description of what happened
+            'needs_input' (bool): True if user input is required
+    """
+    import re as _re
+
+    result = {'found': False, 'value': None, 'action': '', 'needs_input': False}
+
+    if not os.path.isfile(vars_tcl_path):
+        result['action'] = f"vars.tcl not found at: {vars_tcl_path}"
+        if log_file:
+            log_with_timestamp(result['action'], log_file)
+        return result
+
+    # Read file and search for the variable
+    with open(vars_tcl_path, 'r') as f:
+        content = f.read()
+
+    pattern = r'^\s*set\s+ivar\(phoenix_int\)\s+(\S+)'
+    match = _re.search(pattern, content, _re.MULTILINE)
+
+    if match:
+        result['found'] = True
+        result['value'] = match.group(1)
+        result['action'] = f"phoenix_int is already set to: {result['value']}"
+        if log_file:
+            log_with_timestamp(result['action'], log_file)
+        return result
+
+    # Variable not found — add it if intent is provided
+    if intent is None:
+        result['needs_input'] = True
+        result['action'] = (
+            "set ivar(phoenix_int) not found in vars.tcl. "
+            "Please specify the intent: 'power' or 'timing'."
+        )
+        if log_file:
+            log_with_timestamp(result['action'], log_file)
+        return result
+
+    intent = intent.strip().lower()
+    if intent not in ('power', 'timing'):
+        result['action'] = f"Invalid intent '{intent}'. Must be 'power' or 'timing'."
+        if log_file:
+            log_with_timestamp(result['action'], log_file)
+        return result
+
+    line_to_add = f"set ivar(phoenix_int) {intent}\n"
+    with open(vars_tcl_path, 'a') as f:
+        f.write(line_to_add)
+
+    result['value'] = intent
+    result['action'] = f"Added 'set ivar(phoenix_int) {intent}' to end of {vars_tcl_path}"
+    if log_file:
+        log_with_timestamp(result['action'], log_file)
+    return result
+
+
 """
 Includes centralized logging configuration and common helpers
 """
