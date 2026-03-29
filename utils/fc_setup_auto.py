@@ -167,6 +167,21 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
         print(message)
         log_with_timestamp(message, log_file)
 
+    # Copy src directory from ref_WA (done only for server designs)
+    print("Copying src directory...")
+    src_src = os.path.join(ref_WA, "src")
+    if os.path.isdir(src_src):
+        print("Copying src directory...")
+        src_dest = os.path.join(destination_dir, "src")
+        if not copy_directory(src_src, src_dest, "src", log_file):
+            error_msg = "✗ Error Please Check: Failed to copy src directory"
+            print(error_msg)
+            log_with_timestamp(error_msg, log_file)
+    else:
+        message = f"⚠ src directory not found in ref_WA (skipping - not a server design): {src_src}"
+        print(message)
+        log_with_timestamp(message, log_file)
+
     # Validate that critical files and directories exist after copying
     print("\n=== Validating Setup ===")
     critical_paths = [
