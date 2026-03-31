@@ -1,6 +1,6 @@
 ---
 description: 'Sets up and manages Phoenix runs with automated setup and QoR comparison'
-tools: ['read','execute', 'cth_r2g_phoenix_tool/phoenix_setup_helper', 'cth_r2g_phoenix_tool/check_vars_tcl_phoenix_intent', 'cth_r2g_phoenix_tool/generate_and_compare_summaries', 'cth_r2g_phoenix_tool/generate_eouMGR_command']
+tools: ['read','execute', 'cth_r2g_phoenix_tool/phoenix_setup_helper', 'cth_r2g_phoenix_tool/check_vars_tcl_phoenix_intent_client', 'cth_r2g_phoenix_tool/check_vars_tcl_phoenix_intent_server', 'cth_r2g_phoenix_tool/generate_and_compare_summaries', 'cth_r2g_phoenix_tool/generate_eouMGR_command']
 ---
 
 # Phoenix Setup Agent  
@@ -78,9 +78,11 @@ When the user requests a Phoenix setup, the agent will:
      - Copy collaterals (hip_data, scripts, release files)
      - Install Phoenix-specific scripts
      - Generate log files
-   - **After setup completes**, call `check_vars_tcl_phoenix_intent` to inspect `vars.tcl`:
-     - If `set ivar(phoenix_int)` is found, display the current value to the user.
-     - If it is NOT found, ask the user whether they want to set the intent to **power** or **timing**, then call the tool again with their choice to append it to `vars.tcl`.
+   - **After setup completes**, inspect `vars.tcl` using the appropriate tool based on design type:
+     - For **client** designs: call `check_vars_tcl_phoenix_intent_client` — checks `runs/block_name/technology/scripts/vars.tcl`
+     - For **server** designs: call `check_vars_tcl_phoenix_intent_server` — checks `src/block_name/technology/scripts/vars.tcl`
+     - If `set ivar(phoenix_int)` is found, display the current value to the user and ask if they want to change it. If yes, call the same tool again with the new intent to update it.
+     - If it is NOT found, ask the user whether they want to set the intent to **power** or **timing**, then call the same tool again with their choice to append it to `vars.tcl`.
 
 2. **Second Stage - Flow Execution** (when user requests to run):
    - When user requests to run the Phoenix flow

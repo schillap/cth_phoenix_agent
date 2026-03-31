@@ -113,24 +113,27 @@ def create_directory_structure(base_path, structure, log_file=None):
 def check_phoenix_intent(vars_tcl_path, intent=None, log_file=None):
     """
     Check vars.tcl for 'set ivar(phoenix_int)' and return its value,
-    or add it with the specified intent if not present.
+    add it if not present, or update it if intent is provided.
 
     Args:
         vars_tcl_path: Full path to the vars.tcl file
-        intent: If the variable is missing, set this value ('power' or 'timing').
+        intent: The intent value ('power' or 'timing').
                 If None and the variable is missing, returns a message asking the user.
+                If provided and the variable exists, updates it to the new value.
+                If provided and the variable is missing, appends it.
         log_file: Optional log file path
 
     Returns:
         dict with keys:
             'found' (bool): Whether the variable was already present
-            'value' (str|None): The current value if found
+            'value' (str|None): The current or updated value
             'action' (str): Description of what happened
             'needs_input' (bool): True if user input is required
+            'updated' (bool): True if the value was changed
     """
     import re as _re
 
-    result = {'found': False, 'value': None, 'action': '', 'needs_input': False}
+    result = {'found': False, 'value': None, 'action': '', 'needs_input': False, 'updated': False}
 
     if not os.path.isfile(vars_tcl_path):
         result['action'] = f"vars.tcl not found at: {vars_tcl_path}"
@@ -142,13 +145,35 @@ def check_phoenix_intent(vars_tcl_path, intent=None, log_file=None):
     with open(vars_tcl_path, 'r') as f:
         content = f.read()
 
-    pattern = r'^\s*set\s+ivar\(phoenix_int\)\s+(\S+)'
+    pattern = r'^(\s*set\s+ivar\(phoenix_int\)\s+)(\S+)'
     match = _re.search(pattern, content, _re.MULTILINE)
 
     if match:
         result['found'] = True
-        result['value'] = match.group(1)
-        result['action'] = f"phoenix_int is already set to: {result['value']}"
+        result['value'] = match.group(2)
+
+        # If intent is provided and different, update it
+        if intent is not None:
+            intent = intent.strip().lower()
+            if intent not in ('power', 'timing'):
+                result['action'] = f"Invalid intent '{intent}'. Must be 'power' or 'timing'."
+                if log_file:
+                    log_with_timestamp(result['action'], log_file)
+                return result
+
+            if intent != result['value']:
+                new_content = _re.sub(pattern, f"\\1{intent}", content, count=1, flags=_re.MULTILINE)
+                with open(vars_tcl_path, 'w') as f:
+                    f.write(new_content)
+                old_value = result['value']
+                result['value'] = intent
+                result['updated'] = True
+                result['action'] = f"Updated phoenix_int from '{old_value}' to '{intent}' in {vars_tcl_path}"
+            else:
+                result['action'] = f"phoenix_int is already set to '{intent}', no change needed."
+        else:
+            result['action'] = f"phoenix_int is already set to: {result['value']}"
+
         if log_file:
             log_with_timestamp(result['action'], log_file)
         return result
