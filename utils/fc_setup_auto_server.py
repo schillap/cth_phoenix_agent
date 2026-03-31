@@ -5,9 +5,10 @@ import subprocess
 import sys
 from utils import log_with_timestamp, copy_directory, copy_file, create_directory_structure
 
-def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_dir_name, design_name):
+def setup_apr_fc_flow_server(destination_dir, ref_WA, block_name, technology, apr_fc_dir_name, design_name):
     """
-    Main function to set up APR_FC flow.
+    Main function to set up APR_FC flow for server designs.
+    This is used exclusively for server design types.
     
     Args:
         destination_dir: User's ward directory
@@ -20,7 +21,7 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
     Returns:
         bool: True if successful, False otherwise
     """
-    print("=== APR_FC FLOW SETUP IN PROGRESS ===\n")
+    print("=== APR_FC FLOW SETUP (SERVER DESIGN) IN PROGRESS ===\n")
 
     # Setup logging
     try:
@@ -28,7 +29,7 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
         subprocess.run(['mkdir', '-p', destination_dir], 
                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                       universal_newlines=True, check=True)
-        log_file = os.path.join(destination_dir, f"fc_setup_auto_{block_name}.log")
+        log_file = os.path.join(destination_dir, f"fc_setup_auto_server_{block_name}.log")
         print(f"Setting up logging to: {log_file}")
     except subprocess.CalledProcessError as e:
         print(f"✗ Error creating destination directory: {e.stderr}")
@@ -37,7 +38,8 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
         print(f"✗ Error creating destination directory or log file: {e}")
         return False
 
-    log_with_timestamp("=== APR_FC FLOW SETUP ===", log_file)
+    log_with_timestamp("=== APR_FC FLOW SETUP (SERVER DESIGN) ===", log_file)
+    log_with_timestamp(f"Design type: server", log_file)
     log_with_timestamp(f"User directory: {destination_dir}", log_file)
     log_with_timestamp(f"Reference ward directory: {ref_WA}", log_file)
     log_with_timestamp(f"Block name: {block_name}", log_file)
@@ -61,7 +63,8 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
     # Create necessary directory structure
     file_structure = [
         f"runs/{block_name}/{technology}/release/latest",
-        f"runs/{block_name}/{technology}/apr_fc/outputs/insert_dft"
+        f"runs/{block_name}/{technology}/apr_fc/outputs/insert_dft",
+        "src"
     ]
     
     print("Creating directory structure...")
@@ -85,32 +88,6 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
         print(error_msg)
         log_with_timestamp(error_msg, log_file)
         # return False
-
-    # Copy scripts - check for errors
-    print("Copying scripts (bscripts)...")
-    if not copy_directory(
-        os.path.join(ref_WA, f"runs/{block_name}/{technology}/scripts"),
-        os.path.join(destination_dir, f"runs/{block_name}/{technology}/scripts"),
-        "scripts",
-        log_file
-    ):
-        error_msg = "✗ Error Please Check: Failed to copy scripts"
-        print(error_msg)
-        log_with_timestamp(error_msg, log_file)
-        # return False
-
-    # Copy apr_fc/scripts - check for errors
-    print("Copying apr_fc/scripts (fscripts) ...")
-    if not copy_directory(
-        os.path.join(ref_WA, f"runs/{block_name}/{technology}/{apr_fc_dir_name}/scripts"),
-        os.path.join(destination_dir, f"runs/{block_name}/{technology}/apr_fc/scripts"),
-        f"{apr_fc_dir_name}/scripts",
-        log_file
-    ):
-        error_msg = "✗ Error Please Check: Failed to copy apr_fc/scripts"
-        print(error_msg)
-        log_with_timestamp(error_msg, log_file)
-        #return False
 
     # Copy release/latest collaterals
     print("Copying release/latest collaterals...")
@@ -157,23 +134,27 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
         log_with_timestamp(error_msg, log_file)
         #return False
 
-    # Check and copy runs/common - check for errors
-    print("Copying runs/common...")
-    common_src = os.path.join(ref_WA, "runs/common")
-    common_dest = os.path.join(destination_dir, "runs/common")
-    if not copy_directory(common_src, common_dest, "runs/common", log_file):
-        # This is not critical, so we'll warn but not fail
-        message = "⚠ Warning: Failed to copy runs/common (not critical)"
-        print(message)
-        log_with_timestamp(message, log_file)
+    # Copy src directory - REQUIRED for server designs
+    print("Copying src directory (required for server designs)...")
+    src_src = os.path.join(ref_WA, "src")
+    src_dest = os.path.join(destination_dir, "src")
+    if os.path.isdir(src_src):
+        if not copy_directory(src_src, src_dest, "src", log_file):
+            error_msg = "✗ Error Please Check: Failed to copy src directory"
+            print(error_msg)
+            log_with_timestamp(error_msg, log_file)
+    else:
+        error_msg = f"✗ Error: src directory not found in ref_WA (required for server designs): {src_src}"
+        print(error_msg)
+        log_with_timestamp(error_msg, log_file)
+        return False
 
     # Validate that critical files and directories exist after copying
     print("\n=== Validating Setup ===")
     critical_paths = [
         os.path.join(destination_dir, f"runs/{block_name}/{technology}/hip_data"),
-        os.path.join(destination_dir, f"runs/{block_name}/{technology}/scripts"),
-        os.path.join(destination_dir, f"runs/{block_name}/{technology}/apr_fc/scripts"),
-        os.path.join(destination_dir, f"runs/{block_name}/{technology}/apr_fc/outputs/insert_dft/{design_name}.ndm")
+        os.path.join(destination_dir, f"runs/{block_name}/{technology}/apr_fc/outputs/insert_dft/{design_name}.ndm"),
+        os.path.join(destination_dir, "src")
     ]
     
     for path in critical_paths:
@@ -186,10 +167,9 @@ def setup_apr_fc_flow(destination_dir, ref_WA, block_name, technology, apr_fc_di
             print(f"✓ Validated: {os.path.relpath(path, destination_dir)}")
 
     # Final summary
-    print("\n=== Operation Completed Successfully ===")
+    print("\n=== Operation Completed Successfully (Server Design) ===")
     print("All directories have been created and files copied successfully!")
     print(f"- Log file created at: {log_file}")
-    log_with_timestamp("=== APR_FC script execution completed successfully ===", log_file)
+    log_with_timestamp("=== APR_FC script execution completed successfully (server design) ===", log_file)
     
     return True
-

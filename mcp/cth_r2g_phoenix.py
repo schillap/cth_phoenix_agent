@@ -46,7 +46,7 @@ def generate_eouMGR_command(block_name: str, start_task: str, end_task: str) -> 
 @mcp_phoenix_run_agent.tool()
 def phoenix_setup_helper(ref_ward: str, block_name: str, technology: str, 
                      apr_fc_dir_name: str,
-                     destination_dir: str, design_name: str) -> str:
+                     destination_dir: str, design_name: str, design_type: str = "client") -> str:
     """
     Generate and execute the command line to run the Phoenix setup script.
     **MUST ASK THE USER FOR THE REQUIRED INPUTS BEFORE CALLING THIS TOOL**
@@ -57,6 +57,7 @@ def phoenix_setup_helper(ref_ward: str, block_name: str, technology: str,
         apr_fc_dir_name (str): APR_FC directory name
         destination_dir (str): Destination directory path
         design_name (str): Design name
+        design_type (str): Design type - 'server' or 'client' (default: 'client')
     Returns:
         str: Execution result including stdout and stderr
     """
@@ -64,6 +65,7 @@ def phoenix_setup_helper(ref_ward: str, block_name: str, technology: str,
     script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "utils", "fc_setup_auto_main.py")
     
     command = f"python3 {script_path}"
+    command += f" --design_type {design_type}"
     command += f" --destination_dir {destination_dir}"
     command += f" --ref_wa {ref_ward}"
     command += f" --block_name {block_name}"

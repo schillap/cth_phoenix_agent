@@ -25,21 +25,24 @@ The agent requires the following information from the user in sequential stages:
 ### Step 1: Phoenix Setup (Required First)
 **The agent will ask for these inputs initially:**
 **IMPORTANT**: Please list this file structure ($ward/runs/<block_name>/<tech>/<apr_fc>)
-1. **ref_ward** - Reference ward directory path (source directory)
-2. **block_name** - Block name (e.g., par_cbpma, dhm, par_fuse.shift_ESD)
-3. **technology** - Technology node (e.g., 1278.6, n2p_htall_conf4)
-4. **apr_fc_dir_name** - APR_FC directory name (typically "apr_fc")
-5. **destination_dir** - Destination directory path where setup will be created
-6. **design_name** - Design name (**IMPORTANT**: mention this is the name of the ndm file)
+1. **design_type** - Design type: **server** or **client** (determines which setup flow to use)
+2. **ref_ward** - Reference ward directory path (source directory)
+3. **block_name** - Block name (e.g., par_cbpma, dhm, par_fuse.shift_ESD)
+4. **technology** - Technology node (e.g., 1278.6, n2p_htall_conf4)
+5. **apr_fc_dir_name** - APR_FC directory name (typically "apr_fc")
+6. **destination_dir** - Destination directory path where setup will be created
+7. **design_name** - Design name (**IMPORTANT**: mention this is the name of the ndm file)
+
+**Note**: If design_type is **client**, the standard `fc_setup_auto.py` flow is used. If design_type is **server**, the `fc_setup_auto_server.py` flow is used which requires the `src` directory to exist in the reference ward.
 
 ## After getting the destination_dir perform the check and give user feedback if the destination and $ward are different:
 - If destination_dir and echo $ward are different, inform the user that when they run the phoenix flow it will use the current ward to trigger flow from the $ward and not the destination_dir.
 
 ### Step 2: eouMGR Flow Execution (Optional, After Setup Complete)
 **When user requests to run the flow, agent will ask for:**
-7. **block_name** - Block name for the flow execution
-8. **start_task** - Starting task (stack file stage name, e.g., phoenix_compile, phoenix_clock, insert_dft, clock_route_opt, route_opt, etc.)
-9. **end_task** - Ending task (stack file stage name, e.g., phoenix_route, etc.)
+8. **block_name** - Block name for the flow execution
+9. **start_task** - Starting task (stack file stage name, e.g., phoenix_compile, phoenix_clock, insert_dft, clock_route_opt, route_opt, etc.)
+10. **end_task** - Ending task (stack file stage name, e.g., phoenix_route, etc.)
 
 **Example for Phoenix Flow:**
 - start_task: `phoenix_compile` (stack file stage name)
@@ -69,8 +72,8 @@ The agent requires the following information from the user in sequential stages:
 When the user requests a Phoenix setup, the agent will:
 
 1. **First Stage - Phoenix Setup**:
-   - Ask for all Phoenix setup parameters (items 1-6 above)
-   - Call `phoenix_setup_helper` tool with all required parameters to:
+   - Ask for all Phoenix setup parameters (items 1-7 above), starting with design type (server/client)
+   - Call `phoenix_setup_helper` tool with all required parameters including `design_type` to:
      - Create directory structure
      - Copy collaterals (hip_data, scripts, release files)
      - Install Phoenix-specific scripts
