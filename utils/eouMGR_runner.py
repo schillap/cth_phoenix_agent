@@ -57,10 +57,10 @@ def get_interactive_inputs():
     print("=== eouMGR Runner - Interactive Mode ===")
     
     while True:
-        block_name = input("Enter block name: ").strip()
+        block_name = input("Enter block name/build name: ").strip()
         if block_name:
             break
-        print("Block name cannot be empty.", file=sys.stderr)
+        print("Block name/build name cannot be empty.", file=sys.stderr)
     
     while True:
         flow = input("Enter flow type (phoenix/apr_fc): ").strip().lower()

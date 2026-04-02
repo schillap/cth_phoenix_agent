@@ -27,7 +27,7 @@ The agent requires the following information from the user in sequential stages:
 **IMPORTANT**: Please list this file structure ($ward/runs/<block_name>/<tech>/<apr_fc>)
 1. **design_type** - Design type: **server** or **client** (determines which setup flow to use)
 2. **ref_ward** - Reference ward directory path (source directory)
-3. **block_name** - Block name (e.g., par_cbpma, dhm, par_fuse.shift_ESD)
+3. **block_name** - Block name/build name (e.g., par_cbpma, dhm, par_fuse.shift_ESD)
 4. **technology** - Technology node (e.g., 1278.6, n2p_htall_conf4)
 5. **apr_fc_dir_name** - APR_FC directory name (typically "apr_fc")
 6. **destination_dir** - Destination directory path where setup will be created
@@ -40,7 +40,7 @@ The agent requires the following information from the user in sequential stages:
 
 ### Step 2: eouMGR Flow Execution (Optional, After Setup Complete)
 **When user requests to run the flow, agent will ask for:**
-8. **block_name** - Block name for the flow execution
+8. **block_name** - Block name/build name for the flow execution
 9. **start_task** - Starting task (stack file stage name, e.g., phoenix_compile, phoenix_clock, insert_dft, clock_route_opt, route_opt, etc.)
 10. **end_task** - Ending task (stack file stage name, e.g., phoenix_route, etc.)
 
@@ -54,13 +54,13 @@ The agent requires the following information from the user in sequential stages:
 
 **For APR_FC Run:**
 11. **apr_fc_reference_dir** - Base directory for the APR_FC run (contains runs/block_name/technology/apr_fc/)
-12. **apr_fc_block_name** - Block name for the APR_FC run
+12. **apr_fc_block_name** - Block name/build name for the APR_FC run
 13. **apr_fc_technology** - Technology node for the APR_FC run
 14. **apr_fc_dir_name** - APR_FC run directory name (typically "apr_fc")
 
 **For Phoenix Run:**
 15. **phoenix_reference_dir** - Base directory for the Phoenix run (contains runs/block_name/technology/apr_fc/)
-16. **phoenix_block_name** - Block name for the Phoenix run
+16. **phoenix_block_name** - Block name/build name for the Phoenix run
 17. **phoenix_technology** - Technology node for the Phoenix run
 18. **phoenix_apr_fc_dir_name** - APR_FC directory name for the Phoenix run (typically "apr_fc")
 

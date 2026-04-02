@@ -21,7 +21,7 @@ def get_interactive_inputs():
     # Step 2-7: Get user inputs
     destination_dir = input("Step 2: Please provide the destination directory (your ward directory): ").strip()
     ref_WA = input("Step 3: Please provide the reference ward directory to copy files from: ").strip()
-    block_name = input("Step 4: Please provide the block name (matches the directory name within 'runs/<block_name>', e.g., par_cbpma, dhm): ").strip()
+    block_name = input("Step 4: Please provide the block name/build name (matches the directory name within 'runs/<block_name>', e.g., par_cbpma, dhm): ").strip()
     technology = input("Step 5: Please provide the technology (e.g., 1278.6, n2p_htall_conf7): ").strip()
     apr_fc_dir_name = input("Step 6: Please provide the APR_FC directory name: ").strip()
     design_name = input("Step 7: Please provide the design name (matches the .ndm file name, e.g., <design_name>.ndm): ").strip()

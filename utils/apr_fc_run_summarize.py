@@ -483,13 +483,13 @@ def get_interactive_inputs():
         else:
             print("ERROR: Reference directory path cannot be empty.")
     
-    # Get block name
+    # Get block name/build name
     while True:
-        block_name = input("Enter block name (e.g., par_cbpma, dhm): ").strip()
+        block_name = input("Enter block name/build name (e.g., par_cbpma, dhm): ").strip()
         if block_name:
             break
         else:
-            print("ERROR: Block name cannot be empty.")
+            print("ERROR: Block name/build name cannot be empty.")
     
     # Get technology
     while True:
