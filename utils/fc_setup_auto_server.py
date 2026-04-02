@@ -13,7 +13,7 @@ def setup_apr_fc_flow_server(destination_dir, ref_WA, block_name, technology, ap
     Args:
         destination_dir: User's ward directory
         ref_WA: Reference ward directory
-        block_name: Block name (e.g., par_cbpma, dhm)
+        block_name: Block name/build name (e.g., par_cbpma, dhm)
         technology: Technology node (e.g., 1278.6)
         apr_fc_dir_name: APR_FC directory name
         design_name: Design name

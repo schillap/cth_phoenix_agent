@@ -24,7 +24,7 @@ class DirectorySummarizer:
         Args:
             reference_dir: The reference directory to analyze
             output_dir: Directory where summary.log will be created
-            block_name: Block name for navigating to specific reports directory
+            block_name: Block name/build name for navigating to specific reports directory
             tech: Technology node for directory path
             apr_fc: APR_FC directory name
         """
@@ -565,7 +565,7 @@ def main():
     parser.add_argument('--output_dir', type=str,
                        help='Output directory path')
     parser.add_argument('--block_name', type=str,
-                       help='Block name (e.g., par_cbpma, dhm)')
+                       help='Block name/build name (e.g., par_cbpma, dhm)')
     parser.add_argument('--tech', type=str,
                        help='Technology node (e.g., 1278.6)')
     parser.add_argument('--apr_fc', type=str,
@@ -592,7 +592,7 @@ def main():
     print("="*60)
     print(f"Reference Directory: {reference_dir}")
     print(f"Output Directory: {output_dir or 'Same as reference directory'}")
-    print(f"Block Name: {block_name}")
+    print(f"Block Name/Build Name: {block_name}")
     print(f"Technology: {tech}")
     print(f"APR_FC Directory: {apr_fc}")
     

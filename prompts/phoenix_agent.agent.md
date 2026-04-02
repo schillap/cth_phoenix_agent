@@ -40,9 +40,12 @@ The agent requires the following information from the user in sequential stages:
 
 ### Step 2: eouMGR Flow Execution (Optional, After Setup Complete)
 **When user requests to run the flow, agent will ask for:**
-8. **block_name** - Block name/build name for the flow execution
-9. **start_task** - Starting task (stack file stage name, e.g., phoenix_compile, phoenix_clock, insert_dft, clock_route_opt, route_opt, etc.)
-10. **end_task** - Ending task (stack file stage name, e.g., phoenix_route, etc.)
+8. **block_name** - Block name/build name for the flow execution (if provided in Step 1, reuse it)
+9. **design_name** - Design name (if provided in Step 1, reuse it)
+10. **start_task** - Starting task (stack file stage name, e.g., phoenix_compile, phoenix_clock, insert_dft, clock_route_opt, route_opt, etc.)
+11. **end_task** - Ending task (stack file stage name, e.g., phoenix_route, etc.)
+
+**Note**: If `block_name` and `design_name` were already provided during Step 1 (Phoenix Setup), reuse those values and only ask for `start_task` and `end_task`.
 
 **Example for Phoenix Flow:**
 - start_task: `phoenix_compile` (stack file stage name)
@@ -53,20 +56,20 @@ The agent requires the following information from the user in sequential stages:
 **When user requests QoR summary generation and comparison, agent will ask for:**
 
 **For APR_FC Run:**
-11. **apr_fc_reference_dir** - Base directory for the APR_FC run (contains runs/block_name/technology/apr_fc/)
-12. **apr_fc_block_name** - Block name/build name for the APR_FC run
-13. **apr_fc_technology** - Technology node for the APR_FC run
-14. **apr_fc_dir_name** - APR_FC run directory name (typically "apr_fc")
+12. **apr_fc_reference_dir** - Base directory for the APR_FC run (contains runs/block_name/technology/apr_fc/)
+13. **apr_fc_block_name** - Block name/build name for the APR_FC run
+14. **apr_fc_technology** - Technology node for the APR_FC run
+15. **apr_fc_dir_name** - APR_FC run directory name (typically "apr_fc")
 
 **For Phoenix Run:**
-15. **phoenix_reference_dir** - Base directory for the Phoenix run (contains runs/block_name/technology/apr_fc/)
-16. **phoenix_block_name** - Block name/build name for the Phoenix run
-17. **phoenix_technology** - Technology node for the Phoenix run
-18. **phoenix_apr_fc_dir_name** - APR_FC directory name for the Phoenix run (typically "apr_fc")
+16. **phoenix_reference_dir** - Base directory for the Phoenix run (contains runs/block_name/technology/apr_fc/)
+17. **phoenix_block_name** - Block name/build name for the Phoenix run
+18. **phoenix_technology** - Technology node for the Phoenix run
+19. **phoenix_apr_fc_dir_name** - APR_FC directory name for the Phoenix run (typically "apr_fc")
 
 **Comparison Parameters:**
-19. **output_dir** - Directory to save the summary and comparison logs
-20. **stage** - Specific stage to compare (choose one: 'compile', 'clock', or 'route')
+20. **output_dir** - Directory to save the summary and comparison logs
+21. **stage** - Specific stage to compare (choose one: 'compile', 'clock', or 'route')
 
 ## Workflow
 When the user requests a Phoenix setup, the agent will:
@@ -86,14 +89,15 @@ When the user requests a Phoenix setup, the agent will:
 
 2. **Second Stage - Flow Execution** (when user requests to run):
    - When user requests to run the Phoenix flow
-   - Ask for block_name, start_task, end_task, and flow type
+   - Ask for block_name/build_name, design_name, start_task, end_task, and flow type
+   - **If block_name and design_name were already provided during Phoenix setup, reuse them** — only ask for start_task and end_task
    - Call `generate_eouMGR_command` tool to generate the proper eouMGR command
    - Use `runInTerminal` tool to execute the generated eouMGR command
    - Confirm command submission and provide monitoring instructions
 
 3. **Third Stage - QoR Analysis and Comparison** (when user requests comparison):
    - When user requests QoR summary generation or comparison between APR_FC and Phoenix
-   - Ask for all required parameters (items 11-20 above)
+   - Ask for all required parameters (items 12-21 above)
    - **Important**: Collect APR_FC parameters and Phoenix parameters separately to avoid confusion
    - Call `generate_and_compare_summaries` tool with all parameters to:
      - Generate comprehensive QoR summary for the APR_FC baseline run
@@ -169,8 +173,9 @@ If errors occur, the agent will:
 ## eouMGR Command Generation
 When generating eouMGR commands:
 - The `generate_eouMGR_command` tool creates the proper command syntax
-- Ask for block_name, start_task, end_task, and flow type
-- Command includes: --block, --flow, --startTask, --endTask, --feeder, --batch, --reset, --waive_on_error flags
+- Ask for block_name/build_name, design_name, start_task, end_task, and flow type
+- **If block_name and design_name were already provided during setup, reuse them**
+- Command includes: --block, --design, --flow, --startTask, --endTask, --feeder, --gui, --reset, --waive_on_error flags
 - Agent presents the command to user before execution
 - Agent executes using `runInTerminal` if user confirms - we should execute in the same terminal session that was used for setup
 - Provides monitoring instructions after execution

@@ -75,7 +75,7 @@ def main():
     parser.add_argument('--ref_wa', type=str,
                        help='Reference ward directory to copy files from')
     parser.add_argument('--block_name', type=str,
-                       help='Block name (e.g., par_cbpma, dhm)')
+                       help='Block name/build name (e.g., par_cbpma, dhm)')
     parser.add_argument('--technology', type=str,
                        help='Technology (e.g., 1278.6)')
     parser.add_argument('--apr_fc_dir_name', type=str,
@@ -106,7 +106,7 @@ def main():
     print(f"Design type: {design_type}")
     print(f"Destination directory: {destination_dir}")
     print(f"Reference ward directory: {ref_WA}")
-    print(f"Block name: {block_name}")
+    print(f"Block name/build name: {block_name}")
     print(f"Technology: {technology}")
     print(f"APR_FC directory name: {apr_fc_dir_name}")
     print(f"Design name: {design_name}")

@@ -21,12 +21,14 @@ from autobots_base.mcp.servers.base_server import (
 mcp_phoenix_run_agent = AutobotsMCPStdioServer(name="cth_r2g_phoenix_tool")
 
 @mcp_phoenix_run_agent.tool()
-def generate_eouMGR_command(block_name: str, start_task: str, end_task: str) -> str:
+def generate_eouMGR_command(block_name: str, design_name: str, start_task: str, end_task: str) -> str:
     """`
     Generates the command line to run eouMGR.
     **MUST ASK THE USER FOR THE REQUIRED INPUTS BEFORE CALLING THIS TOOL**
+    **If design_name was already provided during Phoenix setup (Step 1), reuse that value.**
     Parameters:
-        block_name (str): The block name for the eouMGR command.
+        block_name (str): The block name/build name for the eouMGR command.
+        design_name (str): The design name (name of the ndm file, provided during setup).
         start_task (str): The starting task for the flow.
         end_task (str): The ending task for the flow.
     
@@ -36,8 +38,8 @@ def generate_eouMGR_command(block_name: str, start_task: str, end_task: str) -> 
     flow:str = "phoenix"
 
     command = (
-        f"eouMGR --block {block_name} --flow {flow} --startTask {start_task} "
-        f"--endTask {end_task} --feeder {flow}_{block_name} --gui --reset &"
+        f"eouMGR --block {block_name} --design {design_name} --flow {flow} --startTask {start_task} "
+        f"--endTask {end_task} --feeder {flow}_{block_name} --gui --reset --waive_on_error &"
     )
     
     return command
@@ -52,7 +54,7 @@ def phoenix_setup_helper(ref_ward: str, block_name: str, technology: str,
     **MUST ASK THE USER FOR THE REQUIRED INPUTS BEFORE CALLING THIS TOOL**
     Parameters:
         ref_ward (str): Reference ward directory path
-        block_name (str): Block name (e.g., par_cbpma, dhm)
+        block_name (str): Block name/build name (e.g., par_cbpma, dhm)
         technology (str): Technology version (e.g., 1278.6)
         apr_fc_dir_name (str): APR_FC directory name
         destination_dir (str): Destination directory path
@@ -102,11 +104,11 @@ def generate_and_compare_summaries(
 
     Parameters:
         apr_fc_reference_dir (str): The base directory for the APR_FC run.
-        apr_fc_block_name (str): The block name for the APR_FC run.
+        apr_fc_block_name (str): The block name/build name for the APR_FC run.
         apr_fc_technology (str): The technology node for the APR_FC run.
         apr_fc_dir_name (str): The APR_FC run directory name for the APR_FC run.
         phoenix_reference_dir (str): The base directory for the Phoenix run.
-        phoenix_block_name (str): The block name for the Phoenix run.
+        phoenix_block_name (str): The block name/build name for the Phoenix run.
         phoenix_technology (str): The technology node for the Phoenix run.
         phoenix_apr_fc_dir_name (str): The APR_FC directory name for the Phoenix run.
         output_dir (str): The directory to save the summary and comparison logs.
@@ -180,7 +182,7 @@ def check_vars_tcl_phoenix_intent_client(destination_dir: str, block_name: str,
 
     Parameters:
         destination_dir (str): The destination directory used during setup.
-        block_name (str): Block name (e.g., par_cbpma, dhm).
+        block_name (str): Block name/build name (e.g., par_cbpma, dhm).
         technology (str): Technology node (e.g., 1278.6).
         intent (str): Optional. The intent to set or update to — 'power' or 'timing'.
                        Leave empty to just check the current value.
@@ -234,7 +236,7 @@ def check_vars_tcl_phoenix_intent_server(destination_dir: str, block_name: str,
 
     Parameters:
         destination_dir (str): The destination directory used during setup.
-        block_name (str): Block name (e.g., par_cbpma, dhm).
+        block_name (str): Block name/build name (e.g., par_cbpma, dhm).
         technology (str): Technology node (e.g., 1278.6).
         intent (str): Optional. The intent to set or update to — 'power' or 'timing'.
                        Leave empty to just check the current value.
