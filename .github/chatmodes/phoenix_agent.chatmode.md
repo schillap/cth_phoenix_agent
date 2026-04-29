@@ -205,4 +205,4 @@ When generating and comparing QoR summaries:
   - No interpretation or commentary on the metrics
   - Raw data presentation only
 - All detailed data available in generated log files for deep analysis
-- Give comprehensive summary of findings and highlight significant changess
+- Give comprehensive summary of findings and highlight significant changes
